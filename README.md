@@ -97,3 +97,12 @@ georedv3 (4 events):
 ## License
 
 MIT
+
+## SuperCLI Integration
+
+This CLI is available as a [SuperCLI plugin](https://github.com/javimosch/supercli). SuperCLI is a unified plugin manager for CLI tools, making it easy to discover, install, and manage command-line utilities.
+
+```bash
+# Install via SuperCLI (once available)
+sc plugins install gitlab-activity
+```
