@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -188,13 +187,6 @@ func handleUser() {
 }
 
 func autoDetectToken(instance, tokenPath string) (string, string, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", "", fmt.Errorf("could not determine home directory")
-	}
-
-	gitlabDir := filepath.Join(homeDir, ".gitlab")
-
 	// If token path is provided, use it
 	if tokenPath != "" {
 		if instance == "" {
@@ -203,31 +195,8 @@ func autoDetectToken(instance, tokenPath string) (string, string, error) {
 		return tokenPath, instance, nil
 	}
 
-	// Auto-detect based on instance
-	if instance != "" {
-		// Map known instances to token files
-		if strings.Contains(instance, "gitlab.com") {
-			tokenFile := filepath.Join(gitlabDir, "jar-token")
-			return tokenFile, instance, nil
-		}
-		if strings.Contains(instance, "git.geored.fr") {
-			tokenFile := filepath.Join(gitlabDir, "geored")
-			return tokenFile, instance, nil
-		}
-		// For custom instances, default to jar-token
-		tokenFile := filepath.Join(gitlabDir, "jar-token")
-		return tokenFile, instance, nil
-	}
-
-	// Try to auto-detect from available token files
-	if _, err := os.Stat(filepath.Join(gitlabDir, "geored")); err == nil {
-		return filepath.Join(gitlabDir, "geored"), "https://git.geored.fr", nil
-	}
-	if _, err := os.Stat(filepath.Join(gitlabDir, "jar-token")); err == nil {
-		return filepath.Join(gitlabDir, "jar-token"), "https://gitlab.com", nil
-	}
-
-	return "", "", fmt.Errorf("no token file found in ~/.gitlab/ (please specify --token)")
+	// Both instance and token must be explicitly provided
+	return "", "", fmt.Errorf("both --token and --instance are required")
 }
 
 func getCurrentUser(instanceURL, token string) (*User, error) {
@@ -460,18 +429,18 @@ func printHelp() {
 	fmt.Println()
 	fmt.Println("Options:")
 	fmt.Println("  -days int          Number of days to look back (default: 7)")
-	fmt.Println("  -instance string   GitLab instance URL (default: auto-detect)")
-	fmt.Println("  -token string      Path to token file (default: auto-detect)")
+	fmt.Println("  -instance string   GitLab instance URL (required)")
+	fmt.Println("  -token string      Path to token file (required)")
 	fmt.Println("  -project string    Filter by project name")
 	fmt.Println("  -since string      Start date (YYYY-MM-DD)")
 	fmt.Println("  -until string      End date (YYYY-MM-DD)")
 	fmt.Println("  -json              Output in JSON format")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  gitlab-activity-cli me")
-	fmt.Println("  gitlab-activity-cli me --days 2 --instance https://git.geored.fr")
-	fmt.Println("  gitlab-activity-cli me --project georedv3 --json")
-	fmt.Println("  gitlab-activity-cli user jarancibia --days 3")
+	fmt.Println("  gitlab-activity-cli me --instance https://gitlab.com --token ~/.gitlab/token")
+	fmt.Println("  gitlab-activity-cli me --days 2 --instance https://git.example.com --token ~/.gitlab/token")
+	fmt.Println("  gitlab-activity-cli me --project myproject --json --instance https://gitlab.com --token ~/.gitlab/token")
+	fmt.Println("  gitlab-activity-cli user username --days 3 --instance https://gitlab.com --token ~/.gitlab/token")
 	fmt.Println()
 	fmt.Println("Exit Codes:")
 	fmt.Println("  0    Success")

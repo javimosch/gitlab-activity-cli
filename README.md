@@ -4,7 +4,6 @@ A simple, agent-friendly CLI tool for retrieving GitLab user activity. Designed 
 
 ## Features
 
-- **Auto-detect GitLab instance** from token files
 - **Flexible time filtering** (days, date ranges)
 - **Project filtering** 
 - **Multiple output formats** (structured text, JSON)
@@ -23,20 +22,20 @@ go build -ldflags "-s -w" -o gitlab-activity-cli main.go
 ### Get current user's activity
 
 ```bash
-# Default: last 7 days, auto-detect instance
-./gitlab-activity-cli me
+# Basic usage
+./gitlab-activity-cli me --instance https://gitlab.com --token ~/.gitlab/token
 
-# Specific date range on self-hosted
-./gitlab-activity-cli me --days 2 --instance https://git.geored.fr
+# Specific date range
+./gitlab-activity-cli me --days 2 --instance https://git.example.com --token ~/.gitlab/token
 
 # Filter by project, JSON output
-./gitlab-activity-cli me --project georedv3 --json
+./gitlab-activity-cli me --project myproject --json --instance https://gitlab.com --token ~/.gitlab/token
 ```
 
 ### Get specific user's activity
 
 ```bash
-./gitlab-activity-cli user jarancibia --days 3
+./gitlab-activity-cli user username --days 3 --instance https://gitlab.com --token ~/.gitlab/token
 ```
 
 ### Options
@@ -51,11 +50,7 @@ go build -ldflags "-s -w" -o gitlab-activity-cli main.go
 
 ## Token Configuration
 
-The CLI auto-detects tokens from `~/.gitlab/`:
-- `jar-token` → gitlab.com
-- `geored` → git.geored.fr
-
-For custom instances, specify both `-instance` and `-token`.
+The CLI auto-detects tokens from `~/.gitlab/` directory. For custom instances, specify both `-instance` and `-token` flags.
 
 ## Output Formats
 
